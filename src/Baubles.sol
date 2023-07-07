@@ -14,10 +14,11 @@ interface IKetherSortition {
 
 /**
  * @title Baubles
- * @notice Once per sortition term cycle, a jubilee can occur which mints 1,621
- * baubles to the magistrate, to be used as they see fit.
+ * @notice Once during each sortition term cycle, a jubilee can occur which
+ * mints 1,621 baubles by the current magistrate.
  */
 contract Baubles is ERC20Permit {
+    /// :confetti:
     event Jubilee(uint256 termNumber, address magistrate, address to);
 
     IKetherSortition public immutable sortition;
@@ -29,6 +30,11 @@ contract Baubles is ERC20Permit {
 
     constructor(IKetherSortition _sortition) ERC20("Baubles", "BAUB") ERC20Permit("Baubles") {
         sortition = _sortition;
+    }
+
+    /// @notice Baubles are non-divisible. 🙃
+    function decimals() public pure override returns (uint8) {
+        return 0;
     }
 
     /// @notice Once per term, magistrate can call mint to create 1,621 baubles.
