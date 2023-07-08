@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 
 import { IKetherSortition, Baubles } from "../src/Baubles.sol";
-import { MustBeMagistrate, MustBeNewTerm } from "../src/Errors.sol";
+import { MustBeMagistrate, MustBeNewTerm, NotStarted } from "../src/Errors.sol";
 
 // MockSortition where anyone can change the magistrate and term, for testing.
 contract MockSortition is IKetherSortition {
@@ -29,6 +29,8 @@ contract BaublesTest is Test {
     function setUp() public {
         sortition = new MockSortition();
         baubles = new Baubles(IKetherSortition(sortition));
+
+        vm.warp(baubles.AGE_OF_JUBILEE() + 1);
     }
 
     function test_MintSimple() public {
@@ -91,6 +93,16 @@ contract BaublesTest is Test {
         baubles.transfer(other, 42);
 
         assertEq(baubles.balanceOf(other), 42);
+    }
+
+    function test_RevertIf_NotStarted() public {
+        vm.warp(baubles.AGE_OF_JUBILEE() - 42);
+
+        address to = msg.sender;
+        sortition.setMagistrate(to, 1);
+        vm.expectRevert(NotStarted.selector);
+        vm.prank(to);
+        baubles.mint(to);
     }
 
     function test_RevertIf_MintAnon() public {
