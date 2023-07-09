@@ -115,10 +115,12 @@ contract BaublesTest is Test {
     }
 
     function test_RevertIf_MintTwice() public {
-        sortition.setMagistrate(address(msg.sender), 1);
-
         address to = address(0xabcd);
-        vm.expectRevert(MustBeMagistrate.selector);
+        sortition.setMagistrate(to, 1);
+        vm.prank(to);
+        baubles.mint(to);
+
+        vm.expectRevert(MustBeNewTerm.selector);
         vm.prank(to);
         baubles.mint(to);
     }
